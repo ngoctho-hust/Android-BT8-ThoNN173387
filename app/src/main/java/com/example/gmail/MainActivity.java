@@ -3,11 +3,16 @@ package com.example.gmail;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SearchView;
 
@@ -43,6 +48,9 @@ public class MainActivity extends AppCompatActivity {
 
         ListView listView = findViewById(R.id.list_mail);
         listView.setAdapter(adapter);
+
+        registerForContextMenu(listView);
+        listView.setLongClickable(true);
     }
 
     private int getRandomMaterialColor(String typeColor) {
@@ -104,5 +112,33 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return false;
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        menu.add(0, 101, 0, "Reply");
+    }
+
+    @Override
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        Email selectedItem = items.get(info.position);
+
+        int id = item.getItemId();
+        if (id == 101) {
+            Intent intent = new Intent(MainActivity.this, ReplyActivity.class);
+
+            Bundle dataBundle = new Bundle();
+
+            dataBundle.putString("email", selectedItem.getFrom());
+            dataBundle.putString("subject", selectedItem.getSubject());
+
+            intent.putExtras(dataBundle);
+
+            startActivity(intent);
+        }
+
+        return super.onContextItemSelected(item);
     }
 }
